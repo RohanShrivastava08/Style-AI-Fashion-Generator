@@ -22,22 +22,24 @@ const suggestOutfitStylesPrompt = ai.definePrompt({
   name: 'suggestOutfitStylesPrompt',
   input: {schema: StyleGuidancePromptSchema},
   output: {schema: SuggestOutfitStylesOutputSchema},
-  prompt: `You are an AI fashion stylist. The user has uploaded an image of a clothing item with the following attributes:
-  - Type: {{{itemType}}}
+  prompt: `You are an expert AI fashion stylist. Your single most important task is to provide outfit recommendations that are a perfect match for the user's uploaded clothing item.
+
+  The user has provided an item with these attributes:
+  - Item Type: {{{itemType}}}
   - Color: {{{color}}}
   - Fabric: {{{fabric}}}
   - Style: {{{style}}}
 
-  Your task is to suggest three different, sophisticated, and modern outfit styles that incorporate this item.
-  The style names should be short, descriptive, and appealing (e.g., "Effortless Everyday", "Smart-Casual Sophistication", "Urban Edgy & Trendy").
-  These styles should be suitable for both men and women, so provide diverse and inclusive recommendations.
+  **Your Task:**
+  Generate three distinct, sophisticated, and modern outfit styles that **perfectly incorporate and complement this specific item.** Do not suggest anything that would not look good with the provided item. All your recommendations must be based on the uploaded item.
 
-  For each outfit style, you must:
-  1.  **Recommend Complementary Items**: Suggest specific items like shirts, t-shirts, dresses, pants, shoes, and accessories that would pair well with the user's item.
-  2.  **Provide Shopping Links**: For each recommended item, provide a valid, clickable shopping link from a reputable online fashion retailer (e.g., Amazon Fashion, Myntra, Zara, H&M, ASOS).
-  3.  **Explain the Style**: Write a brief explanation of why the recommended items create a cohesive and stylish outfit. Mention color theory, occasion suitability, and current fashion trends.
+  For each of the three outfit styles, you must:
+  1.  **Recommend Complementary Items**: Suggest specific items (tops, bottoms, footwear, accessories) that pair flawlessly with the user's item.
+  2.  **Provide Real Shopping Links**: For each recommended item, provide a valid, clickable shopping link from a major online fashion retailer (e.g., Amazon Fashion, Myntra, Zara, H&M, ASOS).
+  3.  **Explain the Style**: Write a brief, sharp explanation of why the complete outfit works. Focus on color harmony, texture contrast, occasion appropriateness, and why it's a stylish look.
+  4.  **Create an Appealing Style Name**: The name should be short, descriptive, and classy (e.g., "Downtown Chic," "Weekend Getaway," "Polished Professional").
 
-  Ensure your output is a JSON object that strictly follows the provided schema.
+  Your output must be a JSON object that strictly follows the provided schema. Your suggestions must be awesome, well-reasoned, and directly relevant to the user's item.
   `,
 });
 
@@ -62,12 +64,18 @@ const suggestOutfitStylesFlow = ai.defineFlow(
     const imagePromises = styleGuidance.output.outfitSuggestions.map(async (suggestion) => {
       try {
         const recommendedItems = suggestion.recommendedItems || [];
+        // Ensure we find the correct item types, even with different casing
+        const tops = recommendedItems.find(i => i.type.toLowerCase().includes('top'))?.name || 'any appropriate top';
+        const bottoms = recommendedItems.find(i => i.type.toLowerCase().includes('bottom'))?.name || 'any appropriate bottom';
+        const footwear = recommendedItems.find(i => i.type.toLowerCase().includes('footwear'))?.name || 'any appropriate footwear';
+        const accessories = recommendedItems.filter(i => i.type.toLowerCase().includes('accessory')).map(i => i.name).join(', ') || 'any appropriate accessories';
+
         const imageResult = await generateAIStyledOutfitImage({
           clothingItemDataUri: input.photoDataUri,
-          tops: recommendedItems.find(i => i.type.toLowerCase() === 'top')?.name || 'any',
-          bottoms: recommendedItems.find(i => i.type.toLowerCase() === 'bottom')?.name || 'any',
-          footwear: recommendedItems.find(i => i.type.toLowerCase() === 'footwear')?.name || 'any',
-          accessories: recommendedItems.find(i => i.type.toLowerCase() === 'accessory')?.name || 'any',
+          tops: tops,
+          bottoms: bottoms,
+          footwear: footwear,
+          accessories: accessories,
           styleDescription: `A full-body, realistic, high-fashion photograph of a person (man or woman) wearing a complete, stylish ${suggestion.styleName} outfit. ${suggestion.description}`,
         });
         return { ...suggestion, aiStyledImage: imageResult.aiStyledOutfitImageDataUri };
