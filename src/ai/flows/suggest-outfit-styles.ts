@@ -28,7 +28,9 @@ const suggestOutfitStylesPrompt = ai.definePrompt({
   - Fabric: {{{fabric}}}
   - Style: {{{style}}}
 
-  Your task is to suggest three different outfit styles (e.g., Casual, Formal, Party) that incorporate this item. These styles should be suitable for both men and women, so provide diverse and inclusive recommendations.
+  Your task is to suggest three different, sophisticated, and modern outfit styles that incorporate this item.
+  The style names should be short, descriptive, and appealing (e.g., "Effortless Everyday", "Smart-Casual Sophistication", "Urban Edgy & Trendy").
+  These styles should be suitable for both men and women, so provide diverse and inclusive recommendations.
 
   For each outfit style, you must:
   1.  **Recommend Complementary Items**: Suggest specific items like shirts, t-shirts, dresses, pants, shoes, and accessories that would pair well with the user's item.
@@ -66,7 +68,7 @@ const suggestOutfitStylesFlow = ai.defineFlow(
           bottoms: recommendedItems.find(i => i.type.toLowerCase() === 'bottom')?.name || 'any',
           footwear: recommendedItems.find(i => i.type.toLowerCase() === 'footwear')?.name || 'any',
           accessories: recommendedItems.find(i => i.type.toLowerCase() === 'accessory')?.name || 'any',
-          styleDescription: `A full-body, realistic photo of a person (man or woman) wearing a stylish ${suggestion.styleName} outfit. ${suggestion.description}`,
+          styleDescription: `A full-body, realistic, high-fashion photograph of a person (man or woman) wearing a complete, stylish ${suggestion.styleName} outfit. ${suggestion.description}`,
         });
         return { ...suggestion, aiStyledImage: imageResult.aiStyledOutfitImageDataUri };
       } catch (error) {
