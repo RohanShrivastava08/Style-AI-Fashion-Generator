@@ -1,4 +1,3 @@
-// src/ai/flows/suggest-outfit-styles.ts
 'use server';
 
 /**
@@ -6,12 +5,12 @@
  *
  * It exports:
  * - `suggestOutfitStyles` - An async function that takes an image data URI and returns outfit suggestions.
- * - `SuggestOutfitStylesInput` - The input type for the suggestOutfitStyles function.
- * - `SuggestOutfitStylesOutput` - The output type for the suggestOutfitStyles function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { generateAIStyledOutfitImage, type GenerateAIStyledOutfitImageOutput, type GenerateAIStyledOutfitImageInput } from './generate-ai-styled-outfit-image';
+import { analyzeUploadedImage, type AnalyzeUploadedImageInput, type AnalyzeUploadedImageOutput } from './analyze-uploaded-image';
 
 const SuggestOutfitStylesInputSchema = z.object({
   photoDataUri: z
@@ -22,45 +21,56 @@ const SuggestOutfitStylesInputSchema = z.object({
 });
 export type SuggestOutfitStylesInput = z.infer<typeof SuggestOutfitStylesInputSchema>;
 
-const OutfitStyleSuggestionSchema = z.object({
+const RecommendedItemSchema = z.object({
+  type: z.string().describe('The type of clothing item (e.g., top, bottom, footwear, accessory).'),
+  name: z.string().describe('The name or description of the recommended item.'),
+  shoppingLink: z.string().url().describe('A valid, clickable URL to a similar item on a fashion e-commerce site.'),
+});
+
+export const OutfitStyleSuggestionSchema = z.object({
   styleName: z.string().describe('The name of the outfit style (e.g., Casual, Formal/Smart, Trendy/Party).'),
   description: z.string().describe('A short, user-friendly description of the outfit style.'),
-  recommendedItems: z.array(
-    z.object({
-      type: z.string().describe('The type of clothing item (e.g., top, bottom, footwear, accessory).'),
-      name: z.string().describe('The name or description of the recommended item.'),
-      shoppingLink: z.string().url().describe('A valid, clickable URL to a similar item on a fashion e-commerce site.'),
-    })
-  ).describe('A list of recommended clothing items, footwear and accessories for the outfit style.'),
+  recommendedItems: z.array(RecommendedItemSchema)
+  .describe('A list of recommended clothing items, footwear and accessories for the outfit style.'),
   explanation: z.string().describe('An explanation of why the outfit combination works, including color coordination, occasion fit, and fashion trends.'),
-  aiStyledImage: z.string().describe('A data URI for an AI-styled image showing the original item styled with the recommended pieces.'),
+  aiStyledImage: z.string().optional().describe('A data URI for an AI-styled image showing the original item styled with the recommended pieces.'),
 });
+export type OutfitStyleSuggestion = z.infer<typeof OutfitStyleSuggestionSchema>;
 
 const SuggestOutfitStylesOutputSchema = z.object({
   outfitSuggestions: z.array(OutfitStyleSuggestionSchema).describe('An array of outfit style suggestions.'),
 });
 export type SuggestOutfitStylesOutput = z.infer<typeof SuggestOutfitStylesOutputSchema>;
 
-export async function suggestOutfitStyles(input: SuggestOutfitStylesInput): Promise<SuggestOutfitStylesOutput> {
-  return suggestOutfitStylesFlow(input);
-}
+const StyleGuidancePromptSchema = z.object({
+    itemType: z.string(),
+    color: z.string(),
+    fabric: z.string(),
+    style: z.string(),
+    outfitSuggestions: z.array(OutfitStyleSuggestionSchema.pick({
+        styleName: true,
+        description: true,
+        recommendedItems: true,
+        explanation: true,
+    }))
+});
 
 const suggestOutfitStylesPrompt = ai.definePrompt({
   name: 'suggestOutfitStylesPrompt',
-  input: {schema: SuggestOutfitStylesInputSchema},
+  input: {schema: StyleGuidancePromptSchema},
   output: {schema: SuggestOutfitStylesOutputSchema},
-  prompt: `You are an AI fashion stylist. The user has uploaded an image of a clothing item. Your task is to suggest three different outfit styles (e.g., Casual, Formal, Party) that incorporate this item.
+  prompt: `You are an AI fashion stylist. The user has uploaded an image of a clothing item with the following attributes:
+  - Type: {{{itemType}}}
+  - Color: {{{color}}}
+  - Fabric: {{{fabric}}}
+  - Style: {{{style}}}
+
+  Your task is to suggest three different outfit styles (e.g., Casual, Formal, Party) that incorporate this item. These styles should be suitable for both men and women, so provide diverse and inclusive recommendations.
 
   For each outfit style, you must:
   1.  **Recommend Complementary Items**: Suggest specific items like shirts, t-shirts, dresses, pants, shoes, and accessories that would pair well with the user's item.
   2.  **Provide Shopping Links**: For each recommended item, provide a valid, clickable shopping link from a reputable online fashion retailer (e.g., Amazon Fashion, Myntra, Zara, H&M, ASOS).
   3.  **Explain the Style**: Write a brief explanation of why the recommended items create a cohesive and stylish outfit. Mention color theory, occasion suitability, and current fashion trends.
-  4.  **Generate a Visual**: Create an AI-generated image that showcases a complete outfit, combining the user's item with your recommendations. This image should be a realistic representation of a person wearing the styled outfit.
-
-  Analyze the user's clothing item from the image provided. Based on its type, color, and style, generate three distinct and fashionable outfit suggestions.
-
-  **User's Clothing Item Image:**
-  {{media url=photoDataUri}}
 
   Ensure your output is a JSON object that strictly follows the provided schema.
   `,
@@ -72,8 +82,43 @@ const suggestOutfitStylesFlow = ai.defineFlow(
     inputSchema: SuggestOutfitStylesInputSchema,
     outputSchema: SuggestOutfitStylesOutputSchema,
   },
-  async input => {
-    const {output} = await suggestOutfitStylesPrompt(input);
-    return output!;
+  async (input) => {
+    // 1. Analyze the uploaded image to get item attributes
+    const analysis = await analyzeUploadedImage({ photoDataUri: input.photoDataUri });
+
+    // 2. Get style recommendations (without images first)
+    const styleGuidance = await suggestOutfitStylesPrompt(analysis);
+
+    if (!styleGuidance.output || !styleGuidance.output.outfitSuggestions) {
+      throw new Error('Failed to get outfit suggestions.');
+    }
+
+    // 3. Generate images for each suggestion in parallel
+    const imagePromises = styleGuidance.output.outfitSuggestions.map(async (suggestion) => {
+      try {
+        const recommendedItems = suggestion.recommendedItems || [];
+        const imageResult = await generateAIStyledOutfitImage({
+          clothingItemDataUri: input.photoDataUri,
+          tops: recommendedItems.find(i => i.type.toLowerCase() === 'top')?.name || 'any',
+          bottoms: recommendedItems.find(i => i.type.toLowerCase() === 'bottom')?.name || 'any',
+          footwear: recommendedItems.find(i => i.type.toLowerCase() === 'footwear')?.name || 'any',
+          accessories: recommendedItems.find(i => i.type.toLowerCase() === 'accessory')?.name || 'any',
+          styleDescription: `A full-body, realistic photo of a person (man or woman) wearing a stylish ${suggestion.styleName} outfit. ${suggestion.description}`,
+        });
+        return { ...suggestion, aiStyledImage: imageResult.aiStyledOutfitImageDataUri };
+      } catch (error) {
+        console.error(`Failed to generate image for style: ${suggestion.styleName}`, error);
+        return { ...suggestion, aiStyledImage: undefined }; // Return suggestion without image on failure
+      }
+    });
+    
+    // 4. Wait for all image generation to complete
+    const suggestionsWithImages = await Promise.all(imagePromises);
+
+    return { outfitSuggestions: suggestionsWithImages };
   }
 );
+
+export async function suggestOutfitStyles(input: SuggestOutfitStylesInput): Promise<SuggestOutfitStylesOutput> {
+  return suggestOutfitStylesFlow(input);
+}

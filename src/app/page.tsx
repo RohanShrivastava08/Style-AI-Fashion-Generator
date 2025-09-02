@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
   UploadCloud,
@@ -23,12 +23,20 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { getOutfitSuggestions } from "./actions";
-import type { SuggestOutfitStylesOutput } from "@/ai/flows/suggest-outfit-styles";
+import type { SuggestOutfitStylesOutput, OutfitStyleSuggestion } from "@/ai/flows/suggest-outfit-styles";
+
+type SuggestionWithStatus = OutfitStyleSuggestion & {
+  imageStatus: 'generating' | 'complete' | 'error';
+};
+
+type SuggestionsWithStatus = {
+  outfitSuggestions: SuggestionWithStatus[];
+};
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [suggestions, setSuggestions] = useState<SuggestOutfitStylesOutput | null>(null);
+  const [suggestions, setSuggestions] = useState<SuggestionsWithStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,8 +80,10 @@ export default function Home() {
 
     try {
       const result = await getOutfitSuggestions(previewUrl);
-      if (result) {
-        setSuggestions(result);
+      if (result && result.outfitSuggestions) {
+        setSuggestions({
+          outfitSuggestions: result.outfitSuggestions.map(s => ({...s, imageStatus: 'complete'}))
+        });
       } else {
         throw new Error("The AI returned an empty response. Please try another image.");
       }
@@ -175,7 +185,7 @@ export default function Home() {
     <div className="w-full max-w-5xl mx-auto flex flex-col items-center text-center">
       <Loader2 className="w-12 h-12 animate-spin text-accent mb-4" />
       <h2 className="text-2xl font-bold mb-2">Generating your styles...</h2>
-      <p className="text-muted-foreground">Our AI stylist is curating the perfect outfits for you. Please wait a moment.</p>
+      <p className="text-muted-foreground">Our AI stylist is curating the perfect outfits for you. This may take a moment.</p>
     </div>
   );
 
@@ -200,14 +210,26 @@ export default function Home() {
             <TabsContent key={suggestion.styleName} value={suggestion.styleName} className="mt-8">
               <Card className="overflow-hidden shadow-2xl">
                 <div className="grid grid-cols-1 md:grid-cols-2">
-                  <div className="aspect-w-1 aspect-h-1 relative">
-                    <Image
-                      src={suggestion.aiStyledImage}
-                      alt={`${suggestion.styleName} outfit`}
-                      fill
-                      className="object-cover"
-                      data-ai-hint={`${suggestion.styleName} outfit`}
-                    />
+                  <div className="aspect-w-1 aspect-h-1 relative bg-muted">
+                    {suggestion.imageStatus === 'complete' && suggestion.aiStyledImage ? (
+                      <Image
+                        src={suggestion.aiStyledImage}
+                        alt={`${suggestion.styleName} outfit`}
+                        fill
+                        className="object-cover"
+                        data-ai-hint={`${suggestion.styleName} outfit`}
+                      />
+                    ) : suggestion.imageStatus === 'generating' ? (
+                       <div className="flex flex-col items-center justify-center h-full">
+                          <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                          <p className="mt-2 text-muted-foreground">Generating image...</p>
+                        </div>
+                    ) : (
+                       <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                          <p className="text-destructive-foreground bg-destructive p-2 rounded-md">Image generation failed.</p>
+                          <p className="mt-2 text-muted-foreground text-sm">The AI couldn't create an image for this style.</p>
+                        </div>
+                    )}
                   </div>
                   <div className="p-6 md:p-8 flex flex-col">
                     <h3 className="text-3xl font-bold tracking-tight mb-2">{suggestion.styleName}</h3>
@@ -233,6 +255,7 @@ export default function Home() {
                             </div>
                         </AccordionTrigger>
                         <AccordionContent>
+                          {suggestion.recommendedItems && suggestion.recommendedItems.length > 0 ? (
                             <ul className="space-y-4">
                             {suggestion.recommendedItems.map((item, index) => (
                                 <li key={index} className="flex justify-between items-center gap-4">
@@ -248,6 +271,9 @@ export default function Home() {
                                 </li>
                             ))}
                             </ul>
+                           ) : (
+                              <p className="text-muted-foreground">No specific items were recommended for this look.</p>
+                           )}
                         </AccordionContent>
                         </AccordionItem>
                     </Accordion>

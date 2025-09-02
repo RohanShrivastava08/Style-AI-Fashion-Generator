@@ -29,12 +29,6 @@ const OutfitRecommendationSchema = z.object({
 const RecommendItemsAndExplainCombinationsOutputSchema = z.array(OutfitRecommendationSchema);
 export type RecommendItemsAndExplainCombinationsOutput = z.infer<typeof RecommendItemsAndExplainCombinationsOutputSchema>;
 
-export async function recommendItemsAndExplainCombinations(
-  input: RecommendItemsAndExplainCombinationsInput
-): Promise<RecommendItemsAndExplainCombinationsOutput> {
-  return recommendItemsAndExplainCombinationsFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'recommendItemsAndExplainCombinationsPrompt',
   input: {schema: RecommendItemsAndExplainCombinationsInputSchema},
@@ -92,3 +86,9 @@ const recommendItemsAndExplainCombinationsFlow = ai.defineFlow(
     return output!;
   }
 );
+
+export async function recommendItemsAndExplainCombinations(
+  input: RecommendItemsAndExplainCombinationsInput
+): Promise<RecommendItemsAndExplainCombinationsOutput> {
+  return recommendItemsAndExplainCombinationsFlow(input);
+}

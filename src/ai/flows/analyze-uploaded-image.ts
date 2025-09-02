@@ -28,10 +28,6 @@ const AnalyzeUploadedImageOutputSchema = z.object({
 });
 export type AnalyzeUploadedImageOutput = z.infer<typeof AnalyzeUploadedImageOutputSchema>;
 
-export async function analyzeUploadedImage(input: AnalyzeUploadedImageInput): Promise<AnalyzeUploadedImageOutput> {
-  return analyzeUploadedImageFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'analyzeUploadedImagePrompt',
   input: {schema: AnalyzeUploadedImageInputSchema},
@@ -62,3 +58,7 @@ const analyzeUploadedImageFlow = ai.defineFlow(
     return output!;
   }
 );
+
+export async function analyzeUploadedImage(input: AnalyzeUploadedImageInput): Promise<AnalyzeUploadedImageOutput> {
+  return analyzeUploadedImageFlow(input);
+}

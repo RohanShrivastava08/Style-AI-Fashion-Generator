@@ -20,7 +20,7 @@ const GenerateAIStyledOutfitImageInputSchema = z.object({
   bottoms: z.string().describe('Recommended bottoms for the outfit.'),
   footwear: z.string().describe('Recommended footwear for the outfit.'),
   accessories: z.string().describe('Recommended accessories for the outfit.'),
-  styleDescription: z.string().describe('Description of the overall outfit style.'),
+  styleDescription: z.string().describe('Description of the overall outfit style, specifying if it\'s for a man or woman and providing a realistic context.'),
 });
 export type GenerateAIStyledOutfitImageInput = z.infer<typeof GenerateAIStyledOutfitImageInputSchema>;
 
@@ -33,43 +33,28 @@ const GenerateAIStyledOutfitImageOutputSchema = z.object({
 });
 export type GenerateAIStyledOutfitImageOutput = z.infer<typeof GenerateAIStyledOutfitImageOutputSchema>;
 
-export async function generateAIStyledOutfitImage(
-  input: GenerateAIStyledOutfitImageInput
-): Promise<GenerateAIStyledOutfitImageOutput> {
-  return generateAIStyledOutfitImageFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'generateAIStyledOutfitImagePrompt',
-  input: {schema: GenerateAIStyledOutfitImageInputSchema},
-  output: {schema: GenerateAIStyledOutfitImageOutputSchema},
-  prompt: `You are an AI fashion stylist that generates images of outfits.
-
-  Create an image of an outfit based on the following description:
-  {{{styleDescription}}}
-
-  The outfit should include the following items:
-  - Tops: {{{tops}}}
-  - Bottoms: {{{bottoms}}}
-  - Footwear: {{{footwear}}}
-  - Accessories: {{{accessories}}}
-
-  The image should also incorporate the following clothing item:
-  {{media url=clothingItemDataUri}}
-  `,
-});
-
 const generateAIStyledOutfitImageFlow = ai.defineFlow(
   {
     name: 'generateAIStyledOutfitImageFlow',
     inputSchema: GenerateAIStyledOutfitImageInputSchema,
     outputSchema: GenerateAIStyledOutfitImageOutputSchema,
   },
-  async input => {
+  async (input) => {
     const {media} = await ai.generate({
       prompt: [
         {
-          text: `Create an image of an outfit based on the following description: ${input.styleDescription}. The outfit should include the following items: Tops: ${input.tops}, Bottoms: ${input.bottoms}, Footwear: ${input.footwear}, Accessories: ${input.accessories}.`,
+          text: `Generate a high-quality, realistic, full-body photograph of a person wearing a complete, stylish outfit.
+
+          **Style Description**: ${input.styleDescription}
+
+          **The outfit must include**:
+          - **Tops**: ${input.tops}
+          - **Bottoms**: ${input.bottoms}
+          - **Footwear**: ${input.footwear}
+          - **Accessories**: ${input.accessories}
+
+          **The image should feature the provided clothing item naturally integrated into the look.**
+          `,
         },
         {
           media: {url: input.clothingItemDataUri},
@@ -81,6 +66,16 @@ const generateAIStyledOutfitImageFlow = ai.defineFlow(
       },
     });
 
-    return {aiStyledOutfitImageDataUri: media.url!};
+    if (!media?.url) {
+      throw new Error('Image generation failed to return a valid image.');
+    }
+
+    return {aiStyledOutfitImageDataUri: media.url};
   }
 );
+
+export async function generateAIStyledOutfitImage(
+  input: GenerateAIStyledOutfitImageInput
+): Promise<GenerateAIStyledOutfitImageOutput> {
+  return generateAIStyledOutfitImageFlow(input);
+}
