@@ -25,7 +25,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { getOutfitSuggestions } from "./actions";
 import type { SuggestOutfitStylesOutput, OutfitStyleSuggestion } from "@/ai/schemas";
-import { cn } from "@/lib/utils";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -38,10 +37,10 @@ type SuggestionsWithStatus = {
 };
 
 const inspirationImages = [
-  { src: "https://picsum.photos/800/1200?random=5", hint: "blue jeans" },
-  { src: "https://picsum.photos/800/1200?random=6", hint: "white shirt" },
-  { src: "https://picsum.photos/800/1200?random=7", hint: "black trousers" },
-  { src: "https://picsum.photos/800/1200?random=8", hint: "denim jacket" },
+  { src: "https://images.unsplash.com/photo-1603400521630-9f2de124b33b?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGNsb3RoZXN8ZW58MHx8MHx8fDA%3D", hint: "clothing store" },
+  { src: "https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2xvdGhlc3xlbnwwfHwwfHx8MA%3D%3D", hint: "denim jacket" },
+  { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2xvdGhlc3xlbnwwfHwwfHx8MA%3D%3D", hint: "clothes rack" },
+  { src: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGNsb3RoZXN8ZW58MHx8MHx8fDA%3D", hint: "flat lay" },
 ];
 
 export default function Home() {
@@ -137,7 +136,7 @@ export default function Home() {
       <p className="text-muted-foreground mb-8 text-lg">
         Share a photo of a clothing item to get instant style advice.
       </p>
-       <div className="border-2 border-dashed border-border rounded-xl p-12 cursor-pointer transition-all hover:border-primary hover:bg-accent/10"
+       <div className="border-2 border-dashed border-border rounded-xl p-12 cursor-pointer transition-all hover:border-primary hover:bg-accent"
             onClick={() => fileInputRef.current?.click()}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -165,7 +164,7 @@ export default function Home() {
         <p className="max-w-xl mx-auto text-lg md:text-xl text-muted-foreground mb-10">
           Unlock the potential of your wardrobe. Get curated outfit recommendations, AI-generated looks, and direct shopping links.
         </p>
-        <Button onClick={scrollToUploader} size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg py-7 px-10 rounded-full shadow-lg">
+        <Button onClick={scrollToUploader} size="lg" className="text-lg py-7 px-10 rounded-full shadow-lg">
           <Sparkles className="mr-3 h-6 w-6" />
           Get Started
         </Button>
@@ -179,7 +178,8 @@ export default function Home() {
               <Image 
                 src={image.src} 
                 alt={`Inspiration ${index + 1}`} 
-                fill 
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 data-ai-hint={image.hint}
               />
@@ -196,7 +196,7 @@ export default function Home() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 py-16">
         {/* Left column for uploaded item */}
         <div className="lg:col-span-1 flex flex-col items-center">
-            <Card className="w-full max-w-sm shadow-2xl overflow-hidden bg-secondary sticky top-8">
+            <Card className="w-full max-w-sm shadow-2xl overflow-hidden bg-secondary sticky top-28">
                 <CardHeader>
                     <CardTitle className="text-center text-2xl">Your Item</CardTitle>
                 </CardHeader>
@@ -215,7 +215,7 @@ export default function Home() {
                 </CardContent>
             </Card>
             <div className="mt-6 flex flex-col gap-4 w-full max-w-sm">
-                 <Button onClick={handleGenerate} size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg w-full" disabled={loading}>
+                 <Button onClick={handleGenerate} size="lg" className="shadow-lg w-full" disabled={loading}>
                     {loading ? (
                         <>
                             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -269,7 +269,7 @@ export default function Home() {
         <Tabs defaultValue={suggestions.outfitSuggestions[0]?.styleName} className="w-full">
           <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto sm:h-12 bg-secondary">
             {suggestions.outfitSuggestions.map((suggestion) => (
-              <TabsTrigger key={suggestion.styleName} value={suggestion.styleName} className="text-base h-full py-2 sm:py-0 whitespace-normal sm:whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-inner">
+              <TabsTrigger key={suggestion.styleName} value={suggestion.styleName} className="text-base h-full py-2 sm:py-0 whitespace-normal sm:whitespace-nowrap">
                 {suggestion.styleName}
               </TabsTrigger>
             ))}
