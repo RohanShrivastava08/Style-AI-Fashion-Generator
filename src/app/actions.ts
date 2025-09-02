@@ -1,6 +1,7 @@
 "use server";
 
-import { suggestOutfitStyles, type SuggestOutfitStylesOutput } from "@/ai/flows/suggest-outfit-styles";
+import { suggestOutfitStyles } from "@/ai/flows/suggest-outfit-styles";
+import { type SuggestOutfitStylesOutput } from "@/ai/schemas";
 
 export async function getOutfitSuggestions(
   photoDataUri: string

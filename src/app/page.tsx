@@ -23,7 +23,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { getOutfitSuggestions } from "./actions";
-import type { SuggestOutfitStylesOutput, OutfitStyleSuggestion } from "@/ai/flows/suggest-outfit-styles";
+import type { SuggestOutfitStylesOutput, OutfitStyleSuggestion } from "@/ai/schemas";
 
 type SuggestionWithStatus = OutfitStyleSuggestion & {
   imageStatus: 'generating' | 'complete' | 'error';
