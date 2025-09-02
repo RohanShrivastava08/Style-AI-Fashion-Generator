@@ -38,10 +38,10 @@ type SuggestionsWithStatus = {
 };
 
 const inspirationImages = [
-  { src: "https://picsum.photos/800/1200", hint: "woman fashion" },
-  { src: "https://picsum.photos/800/1200?random=2", hint: "man fashion" },
-  { src: "https://picsum.photos/800/1200?random=3", hint: "street style" },
-  { src: "https://picsum.photos/800/1200?random=4", hint: "elegant dress" },
+  { src: "https://picsum.photos/800/1200?random=5", hint: "blue jeans" },
+  { src: "https://picsum.photos/800/1200?random=6", hint: "white shirt" },
+  { src: "https://picsum.photos/800/1200?random=7", hint: "black trousers" },
+  { src: "https://picsum.photos/800/1200?random=8", hint: "denim jacket" },
 ];
 
 export default function Home() {
@@ -137,7 +137,7 @@ export default function Home() {
       <p className="text-muted-foreground mb-8 text-lg">
         Share a photo of a clothing item to get instant style advice.
       </p>
-       <div className="border-2 border-dashed border-border rounded-xl p-12 cursor-pointer transition-all hover:border-primary hover:bg-white/5"
+       <div className="border-2 border-dashed border-border rounded-xl p-12 cursor-pointer transition-all hover:border-primary hover:bg-accent/10"
             onClick={() => fileInputRef.current?.click()}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -269,7 +269,7 @@ export default function Home() {
         <Tabs defaultValue={suggestions.outfitSuggestions[0]?.styleName} className="w-full">
           <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto sm:h-12 bg-secondary">
             {suggestions.outfitSuggestions.map((suggestion) => (
-              <TabsTrigger key={suggestion.styleName} value={suggestion.styleName} className="text-base h-full py-2 sm:py-0 whitespace-normal sm:whitespace-nowrap data-[state=active]:bg-background">
+              <TabsTrigger key={suggestion.styleName} value={suggestion.styleName} className="text-base h-full py-2 sm:py-0 whitespace-normal sm:whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-inner">
                 {suggestion.styleName}
               </TabsTrigger>
             ))}
