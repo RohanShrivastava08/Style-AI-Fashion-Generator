@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import {
   UploadCloud,
@@ -8,10 +8,6 @@ import {
   Sparkles,
   ShoppingBag,
   Info,
-  Palette,
-  Shirt,
-  Wind,
-  Shuffle,
   RotateCcw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -107,23 +103,25 @@ export default function Home() {
 
   const renderInitialState = () => (
     <Card
-      className="w-full max-w-lg mx-auto shadow-lg"
+      className="w-full max-w-lg mx-auto shadow-2xl bg-card/80 backdrop-blur-sm"
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
       <CardHeader>
         <div className="flex justify-center items-center mb-4">
-          <Sparkles className="w-8 h-8 text-primary" />
+          <div className="bg-primary text-primary-foreground p-3 rounded-full">
+            <Sparkles className="w-8 h-8" />
+          </div>
         </div>
-        <CardTitle className="text-center text-3xl font-headline">
-          StyleAI Fashion Stylist
+        <CardTitle className="text-center text-3xl font-bold tracking-tight">
+          AI Fashion Stylist
         </CardTitle>
       </CardHeader>
       <CardContent className="text-center">
         <p className="text-muted-foreground mb-6">
           Upload a photo of a clothing item and get instant style advice.
         </p>
-        <div className="border-2 border-dashed border-border rounded-lg p-12 cursor-pointer transition-colors hover:border-primary/50 hover:bg-accent/20"
+        <div className="border-2 border-dashed border-border rounded-xl p-12 cursor-pointer transition-all hover:border-accent hover:bg-accent/10"
              onClick={() => fileInputRef.current?.click()}>
           <UploadCloud className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
           <p className="font-semibold">Drag & drop an image or click to upload</p>
@@ -142,13 +140,13 @@ export default function Home() {
 
   const renderPreviewState = () => (
     <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-8">
-      <Card className="w-full max-w-sm shadow-lg overflow-hidden">
+      <Card className="w-full max-w-sm shadow-2xl overflow-hidden">
         <CardHeader>
           <CardTitle className="text-center">Your Item</CardTitle>
         </CardHeader>
         <CardContent>
           {previewUrl && (
-            <div className="aspect-square relative rounded-lg overflow-hidden">
+            <div className="aspect-square relative rounded-lg overflow-hidden ring-1 ring-border">
               <Image
                 src={previewUrl}
                 alt="Uploaded item"
@@ -161,7 +159,7 @@ export default function Home() {
         </CardContent>
       </Card>
       <div className="flex gap-4">
-        <Button onClick={handleReset} variant="outline">
+        <Button onClick={handleReset} variant="outline" size="lg">
           <RotateCcw className="mr-2 h-4 w-4" />
           Change Image
         </Button>
@@ -174,147 +172,103 @@ export default function Home() {
   );
 
   const renderLoadingState = () => (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-      <Card className="shadow-lg sticky top-8">
-        <CardHeader>
-          <Skeleton className="h-8 w-3/4 mx-auto" />
-        </CardHeader>
-        <CardContent className="flex flex-col items-center">
-          <Skeleton className="w-full aspect-square rounded-lg" />
-          <Skeleton className="h-10 w-1/2 mt-6" />
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-lg">
-        <CardHeader>
-          <Skeleton className="h-8 w-1/2 mx-auto" />
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-center mb-4">
-            <Skeleton className="h-10 w-24 mr-2" />
-            <Skeleton className="h-10 w-24 mr-2" />
-            <Skeleton className="h-10 w-24" />
-          </div>
-          <Skeleton className="w-full aspect-video rounded-lg mb-6" />
-          <Skeleton className="h-6 w-1/3 mb-4" />
-          <Skeleton className="h-4 w-full mb-2" />
-          <Skeleton className="h-4 w-5/6 mb-6" />
-          <Skeleton className="h-6 w-1/3 mb-4" />
-          <Skeleton className="h-4 w-full mb-2" />
-          <Skeleton className="h-4 w-4/6 mb-2" />
-        </CardContent>
-      </Card>
+    <div className="w-full max-w-5xl mx-auto flex flex-col items-center text-center">
+      <Loader2 className="w-12 h-12 animate-spin text-accent mb-4" />
+      <h2 className="text-2xl font-bold mb-2">Generating your styles...</h2>
+      <p className="text-muted-foreground">Our AI stylist is curating the perfect outfits for you. Please wait a moment.</p>
     </div>
   );
 
   const renderSuggestionsState = () => (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-      <Card className="shadow-lg sticky top-8">
-        <CardHeader>
-          <CardTitle className="text-center font-headline">Your Item</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center">
-          {previewUrl && (
-            <div className="aspect-square relative w-full rounded-lg overflow-hidden mb-6">
-              <Image
-                src={previewUrl}
-                alt="Uploaded item"
-                fill
-                className="object-cover"
-                data-ai-hint="uploaded clothing"
-              />
-            </div>
-          )}
-          <Button onClick={handleReset} variant="outline">
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Start Over
-          </Button>
-        </CardContent>
-      </Card>
+    <div className="w-full max-w-5xl mx-auto">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold tracking-tight">AI Outfit Suggestions</h1>
+        <p className="text-muted-foreground mt-2">Here are three unique styles featuring your item.</p>
+      </div>
 
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-center font-headline">AI Outfit Suggestions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {suggestions && (
-            <Tabs defaultValue={suggestions.outfitSuggestions[0]?.styleName} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                {suggestions.outfitSuggestions.map((suggestion) => (
-                  <TabsTrigger key={suggestion.styleName} value={suggestion.styleName}>
-                    {suggestion.styleName}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              {suggestions.outfitSuggestions.map((suggestion) => (
-                <TabsContent key={suggestion.styleName} value={suggestion.styleName}>
-                  <div className="mt-4">
-                    <Card className="overflow-hidden">
-                      <div className="aspect-video relative">
-                        <Image
-                          src={suggestion.aiStyledImage}
-                          alt={`${suggestion.styleName} outfit`}
-                          fill
-                          className="object-cover"
-                          data-ai-hint={`${suggestion.styleName} outfit`}
-                        />
-                      </div>
-                      <div className="p-6">
-                        <h3 className="text-2xl font-semibold mb-2 font-headline">{suggestion.styleName}</h3>
-                        <p className="text-muted-foreground mb-6">{suggestion.description}</p>
-                        
-                        <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
-                           <AccordionItem value="item-1">
-                            <AccordionTrigger>
-                              <div className="flex items-center gap-2">
-                                <Info className="h-5 w-5" />
-                                <span className="font-semibold">Style Explanation</span>
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              {suggestion.explanation}
-                            </AccordionContent>
-                          </AccordionItem>
-                          <AccordionItem value="item-2">
-                            <AccordionTrigger>
-                              <div className="flex items-center gap-2">
-                                <ShoppingBag className="h-5 w-5" />
-                                <span className="font-semibold">Recommended Items</span>
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <ul className="space-y-3">
-                                {suggestion.recommendedItems.map((item, index) => (
-                                  <li key={index} className="flex justify-between items-center">
-                                    <span>
-                                      <Badge variant="secondary" className="mr-2">{item.type}</Badge>
-                                      {item.name}
-                                    </span>
-                                    <Button asChild variant="link" size="sm" className="p-0 h-auto">
-                                      <a href={item.shoppingLink} target="_blank" rel="noopener noreferrer">
-                                        Shop Now
-                                      </a>
-                                    </Button>
-                                  </li>
-                                ))}
-                              </ul>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
-                      </div>
-                    </Card>
+      {suggestions && (
+        <Tabs defaultValue={suggestions.outfitSuggestions[0]?.styleName} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto h-12">
+            {suggestions.outfitSuggestions.map((suggestion) => (
+              <TabsTrigger key={suggestion.styleName} value={suggestion.styleName} className="text-base">
+                {suggestion.styleName}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {suggestions.outfitSuggestions.map((suggestion) => (
+            <TabsContent key={suggestion.styleName} value={suggestion.styleName} className="mt-8">
+              <Card className="overflow-hidden shadow-2xl">
+                <div className="grid grid-cols-1 md:grid-cols-2">
+                  <div className="aspect-w-1 aspect-h-1 relative">
+                    <Image
+                      src={suggestion.aiStyledImage}
+                      alt={`${suggestion.styleName} outfit`}
+                      fill
+                      className="object-cover"
+                      data-ai-hint={`${suggestion.styleName} outfit`}
+                    />
                   </div>
-                </TabsContent>
-              ))}
-            </Tabs>
-          )}
-        </CardContent>
-      </Card>
+                  <div className="p-6 md:p-8 flex flex-col">
+                    <h3 className="text-3xl font-bold tracking-tight mb-2">{suggestion.styleName}</h3>
+                    <p className="text-muted-foreground mb-6">{suggestion.description}</p>
+                    
+                    <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
+                        <AccordionItem value="item-1">
+                        <AccordionTrigger>
+                            <div className="flex items-center gap-3">
+                            <Info className="h-5 w-5 text-accent" />
+                            <span className="font-semibold text-lg">Style Explanation</span>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="text-base">
+                            {suggestion.explanation}
+                        </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-2">
+                        <AccordionTrigger>
+                            <div className="flex items-center gap-3">
+                            <ShoppingBag className="h-5 w-5 text-accent" />
+                            <span className="font-semibold text-lg">Shop The Look</span>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <ul className="space-y-4">
+                            {suggestion.recommendedItems.map((item, index) => (
+                                <li key={index} className="flex justify-between items-center gap-4">
+                                <div>
+                                    <Badge variant="secondary" className="mr-2">{item.type}</Badge>
+                                    <span className="font-medium">{item.name}</span>
+                                </div>
+                                <Button asChild variant="outline" size="sm">
+                                    <a href={item.shoppingLink} target="_blank" rel="noopener noreferrer">
+                                    Shop Now
+                                    </a>
+                                </Button>
+                                </li>
+                            ))}
+                            </ul>
+                        </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                    <div className="mt-auto pt-6 flex justify-end">
+                      <Button onClick={handleReset} variant="default">
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        Start Over
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </TabsContent>
+          ))}
+        </Tabs>
+      )}
     </div>
   );
   
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 md:p-12 bg-background">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 md:p-12 bg-gradient-to-br from-background to-secondary">
       <div className="w-full max-w-7xl">
         {loading ? (
           renderLoadingState()

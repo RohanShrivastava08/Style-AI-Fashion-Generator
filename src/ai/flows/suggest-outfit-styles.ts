@@ -49,21 +49,20 @@ const suggestOutfitStylesPrompt = ai.definePrompt({
   name: 'suggestOutfitStylesPrompt',
   input: {schema: SuggestOutfitStylesInputSchema},
   output: {schema: SuggestOutfitStylesOutputSchema},
-  prompt: `You are an AI fashion stylist. Analyze the uploaded clothing image and suggest three different outfit styles (Casual, Formal/Smart, Trendy/Party) based on the item in the image.
+  prompt: `You are an AI fashion stylist. The user has uploaded an image of a clothing item. Your task is to suggest three different outfit styles (e.g., Casual, Formal, Party) that incorporate this item.
 
-  For each outfit style:
+  For each outfit style, you must:
+  1.  **Recommend Complementary Items**: Suggest specific items like shirts, t-shirts, dresses, pants, shoes, and accessories that would pair well with the user's item.
+  2.  **Provide Shopping Links**: For each recommended item, provide a valid, clickable shopping link from a reputable online fashion retailer (e.g., Amazon Fashion, Myntra, Zara, H&M, ASOS).
+  3.  **Explain the Style**: Write a brief explanation of why the recommended items create a cohesive and stylish outfit. Mention color theory, occasion suitability, and current fashion trends.
+  4.  **Generate a Visual**: Create an AI-generated image that showcases a complete outfit, combining the user's item with your recommendations. This image should be a realistic representation of a person wearing the styled outfit.
 
-  List recommended items (tops, bottoms, footwear, accessories) with valid, clickable URLs from reliable fashion e-commerce sites (e.g., Amazon Fashion, Myntra, Zara, H&M).
+  Analyze the user's clothing item from the image provided. Based on its type, color, and style, generate three distinct and fashionable outfit suggestions.
 
-  Explain why the combination works (color coordination, occasion fit, fashion trends).
+  **User's Clothing Item Image:**
+  {{media url=photoDataUri}}
 
-  Generate an AI-styled outfit image (that visually shows the item styled with other recommended pieces).
-
-  Ensure all suggestions are practical, stylish, and modern.
-
-  Output should be structured in JSON format.
-
-  Here is the clothing item image: {{media url=photoDataUri}}
+  Ensure your output is a JSON object that strictly follows the provided schema.
   `,
 });
 
