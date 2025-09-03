@@ -20,7 +20,8 @@ const GenerateAIStyledOutfitImageInputSchema = z.object({
   bottoms: z.string().describe('Recommended bottoms for the outfit.'),
   footwear: z.string().describe('Recommended footwear for the outfit.'),
   accessories: z.string().describe('Recommended accessories for the outfit.'),
-  styleDescription: z.string().describe('Description of the overall outfit style, specifying if it\'s for a man or woman and providing a realistic context.'),
+  styleDescription: z.string().describe('Description of the overall outfit style.'),
+  gender: z.enum(['woman', 'man', 'unspecified']).describe('The gender for which the outfit is being styled.'),
 });
 export type GenerateAIStyledOutfitImageInput = z.infer<typeof GenerateAIStyledOutfitImageInputSchema>;
 
@@ -43,7 +44,7 @@ const generateAIStyledOutfitImageFlow = ai.defineFlow(
     const {media} = await ai.generate({
       prompt: [
         {
-          text: `Generate a high-quality, realistic, full-body photograph of a person wearing a complete, stylish outfit.
+          text: `Generate a high-quality, realistic, full-body photograph of a ${input.gender} wearing a complete, stylish outfit.
 
           **Style Description**: ${input.styleDescription}
 
@@ -53,7 +54,7 @@ const generateAIStyledOutfitImageFlow = ai.defineFlow(
           - **Footwear**: ${input.footwear}
           - **Accessories**: ${input.accessories}
 
-          **The image should feature the provided clothing item naturally integrated into the look.**
+          **The image should feature the provided clothing item naturally integrated into the look.** The person should have a pose that is suitable for a high-fashion photograph.
           `,
         },
         {

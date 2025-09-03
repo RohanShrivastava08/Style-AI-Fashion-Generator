@@ -6,6 +6,7 @@ export const SuggestOutfitStylesInputSchema = z.object({
     .describe(
       "A photo of a clothing item, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
+    gender: z.enum(['woman', 'man', 'unspecified']).describe('The gender for which the outfit is being styled.'),
 });
 export type SuggestOutfitStylesInput = z.infer<
   typeof SuggestOutfitStylesInputSchema
@@ -30,7 +31,7 @@ export const OutfitStyleSuggestionSchema = z.object({
   styleName: z
     .string()
     .describe(
-      'The name of the outfit style (e.g., Casual, Formal/Smart, Trendy/Party).'
+      'A short, descriptive, and classy name for the outfit style (e.g., "Downtown Chic," "Weekend Getaway," "Polished Professional").'
     ),
   description: z
     .string()
@@ -68,12 +69,5 @@ export const StyleGuidancePromptSchema = z.object({
   color: z.string(),
   fabric: z.string(),
   style: z.string(),
-  outfitSuggestions: z.array(
-    OutfitStyleSuggestionSchema.pick({
-      styleName: true,
-      description: true,
-      recommendedItems: true,
-      explanation: true,
-    })
-  ),
+  gender: z.enum(['woman', 'man', 'unspecified']),
 });

@@ -1,14 +1,14 @@
 "use server";
 
 import { suggestOutfitStyles } from "@/ai/flows/suggest-outfit-styles";
-import { type SuggestOutfitStylesOutput } from "@/ai/schemas";
+import { type SuggestOutfitStylesInput, type SuggestOutfitStylesOutput } from "@/ai/schemas";
 
 export async function getOutfitSuggestions(
-  photoDataUri: string
+  input: SuggestOutfitStylesInput
 ): Promise<SuggestOutfitStylesOutput | null> {
   try {
     // Increase the timeout for this server action
-    const result = await suggestOutfitStyles({ photoDataUri });
+    const result = await suggestOutfitStyles(input);
     return result;
   } catch (error) {
     console.error("Error getting outfit suggestions:", error);

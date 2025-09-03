@@ -14,8 +14,10 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import {
   Accordion,
   AccordionContent,
@@ -36,6 +38,8 @@ type SuggestionsWithStatus = {
   outfitSuggestions: SuggestionWithStatus[];
 };
 
+type Gender = 'woman' | 'man';
+
 const inspirationImages = [
   { src: "https://images.unsplash.com/photo-1603400521630-9f2de124b33b?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGNsb3RoZXN8ZW58MHx8MHx8fDA%3D", hint: "clothing store" },
   { src: "https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2xvdGhlc3xlbnwwfHwwfHx8MA%3D%3D", hint: "denim jacket" },
@@ -49,6 +53,7 @@ export default function Home() {
   const [suggestions, setSuggestions] = useState<SuggestionsWithStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gender, setGender] = useState<Gender>('woman');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploaderRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -94,7 +99,7 @@ export default function Home() {
     setSuggestions(null);
 
     try {
-      const result = await getOutfitSuggestions(previewUrl);
+      const result = await getOutfitSuggestions({ photoDataUri: previewUrl, gender });
       if (result && result.outfitSuggestions) {
         setSuggestions({
           outfitSuggestions: result.outfitSuggestions.map(s => ({...s, imageStatus: s.aiStyledImage ? 'complete' : 'error' }))
@@ -132,11 +137,11 @@ export default function Home() {
   
   const renderUploader = () => (
      <div ref={uploaderRef} className="w-full max-w-2xl mx-auto text-center py-20">
-      <h2 className="text-4xl font-bold tracking-tight mb-4">Upload Your Item</h2>
+      <h2 className="font-playfair text-4xl font-bold tracking-tight mb-4">Upload Your Item</h2>
       <p className="text-muted-foreground mb-8 text-lg">
         Share a photo of a clothing item to get instant style advice.
       </p>
-       <div className="border-2 border-dashed border-border rounded-xl p-12 cursor-pointer transition-all hover:border-primary hover:bg-accent"
+       <div className="border-2 border-dashed border-border rounded-xl p-12 cursor-pointer transition-all hover:border-primary/50 hover:bg-primary/5"
             onClick={() => fileInputRef.current?.click()}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -158,23 +163,23 @@ export default function Home() {
   const renderInitialState = () => (
     <>
       <div className="text-center pt-24 pb-16">
-        <h1 style={{fontFamily: "'Playfair Display', serif"}} className="text-6xl md:text-8xl font-bold tracking-tighter mb-6">
+        <h1 className="font-playfair text-6xl md:text-8xl font-bold tracking-tighter mb-6">
           Your Personal AI Stylist
         </h1>
         <p className="max-w-xl mx-auto text-lg md:text-xl text-muted-foreground mb-10">
           Unlock the potential of your wardrobe. Get curated outfit recommendations, AI-generated looks, and direct shopping links.
         </p>
-        <Button onClick={scrollToUploader} size="lg" className="text-lg py-7 px-10 rounded-full shadow-lg">
+        <Button onClick={scrollToUploader} size="lg" className="text-lg py-7 px-10 rounded-full shadow-lg hover:shadow-xl transition-shadow">
           <Sparkles className="mr-3 h-6 w-6" />
           Get Started
         </Button>
       </div>
 
       <div className="py-20">
-        <h2 className="text-center text-4xl font-bold mb-12">Style Inspiration</h2>
+        <h2 className="text-center font-playfair text-4xl font-bold mb-12">Style Inspiration</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
           {inspirationImages.map((image, index) => (
-            <div key={index} className="group relative aspect-[2/3] overflow-hidden rounded-lg shadow-2xl">
+            <div key={index} className="group relative aspect-[2/3] overflow-hidden rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300">
               <Image 
                 src={image.src} 
                 alt={`Inspiration ${index + 1}`} 
@@ -195,10 +200,10 @@ export default function Home() {
   const renderPreviewAndSuggestions = () => (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 py-16">
         {/* Left column for uploaded item */}
-        <div className="lg:col-span-1 flex flex-col items-center">
-            <Card className="w-full max-w-sm shadow-2xl overflow-hidden bg-secondary sticky top-28">
+        <div className="lg:col-span-1 flex flex-col items-center space-y-6">
+            <Card className="w-full max-w-sm shadow-2xl overflow-hidden bg-card/50">
                 <CardHeader>
-                    <CardTitle className="text-center text-2xl">Your Item</CardTitle>
+                    <CardTitle className="text-center text-2xl font-playfair">Your Item</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {previewUrl && (
@@ -214,7 +219,31 @@ export default function Home() {
                     )}
                 </CardContent>
             </Card>
-            <div className="mt-6 flex flex-col gap-4 w-full max-w-sm">
+
+            <Card className="w-full max-w-sm shadow-xl bg-card/50">
+              <CardHeader>
+                <CardTitle className="font-playfair text-xl">Style For</CardTitle>
+                <CardDescription>Select the gender for outfit suggestions.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup defaultValue="woman" onValueChange={(value: Gender) => setGender(value)} className="grid grid-cols-2 gap-4">
+                  <div>
+                    <RadioGroupItem value="woman" id="woman" className="peer sr-only" />
+                    <Label htmlFor="woman" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                      Woman
+                    </Label>
+                  </div>
+                  <div>
+                    <RadioGroupItem value="man" id="man" className="peer sr-only" />
+                    <Label htmlFor="man" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                      Man
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </CardContent>
+            </Card>
+
+            <div className="w-full max-w-sm flex flex-col gap-4">
                  <Button onClick={handleGenerate} size="lg" className="shadow-lg w-full" disabled={loading}>
                     {loading ? (
                         <>
@@ -243,17 +272,17 @@ export default function Home() {
   );
   
   const renderSuggestionsPlaceholder = () => (
-    <div className="flex flex-col items-center justify-center h-full text-center bg-secondary/50 rounded-lg p-12 border-2 border-dashed">
+    <div className="flex flex-col items-center justify-center h-full text-center bg-secondary/30 rounded-lg p-12 border-2 border-dashed">
       <Feather className="w-16 h-16 text-muted-foreground mb-6"/>
-      <h2 className="text-3xl font-bold">Awaiting Your Masterpiece</h2>
+      <h2 className="text-3xl font-bold font-playfair">Awaiting Your Masterpiece</h2>
       <p className="text-muted-foreground text-lg mt-2">Click "Generate Styles" and let our AI craft the perfect looks for you.</p>
     </div>
   );
 
   const renderLoadingState = () => (
-    <div className="w-full flex flex-col items-center justify-center text-center p-12 rounded-lg bg-secondary/50">
+    <div className="w-full flex flex-col items-center justify-center text-center p-12 rounded-lg bg-secondary/30">
       <Loader2 className="w-16 h-16 animate-spin text-primary mb-6" />
-      <h2 className="text-3xl font-bold mb-3">Curating your styles...</h2>
+      <h2 className="text-3xl font-bold mb-3 font-playfair">Curating your styles...</h2>
       <p className="text-muted-foreground text-lg">Our AI stylist is analyzing your item and creating unique outfits. This may take a moment.</p>
     </div>
   );
@@ -261,13 +290,13 @@ export default function Home() {
   const renderSuggestionsState = () => (
     <div className="w-full">
       <div className="text-left mb-10">
-        <h1 className="text-5xl font-bold tracking-tighter">Your AI-Styled Outfits</h1>
+        <h1 className="text-5xl font-bold tracking-tighter font-playfair">Your AI-Styled Outfits</h1>
         <p className="text-muted-foreground mt-3 text-xl max-w-2xl">Here are three unique looks, styled by AI and ready for you to explore.</p>
       </div>
 
       {suggestions && (
         <Tabs defaultValue={suggestions.outfitSuggestions[0]?.styleName} className="w-full">
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto sm:h-12 bg-secondary">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto sm:h-12 bg-secondary/50">
             {suggestions.outfitSuggestions.map((suggestion) => (
               <TabsTrigger key={suggestion.styleName} value={suggestion.styleName} className="text-base h-full py-2 sm:py-0 whitespace-normal sm:whitespace-nowrap">
                 {suggestion.styleName}
@@ -277,9 +306,9 @@ export default function Home() {
 
           {suggestions.outfitSuggestions.map((suggestion) => (
             <TabsContent key={suggestion.styleName} value={suggestion.styleName} className="mt-8">
-              <Card className="overflow-hidden shadow-2xl border-2 bg-secondary">
+              <Card className="overflow-hidden shadow-2xl border-2 bg-secondary/30">
                 <div className="grid grid-cols-1 md:grid-cols-2">
-                  <div className="aspect-w-1 aspect-h-1 relative bg-muted/50">
+                  <div className="aspect-w-1 aspect-h-1 relative bg-muted/30">
                     {suggestion.imageStatus === 'complete' && suggestion.aiStyledImage ? (
                       <Image
                         src={suggestion.aiStyledImage}
@@ -289,7 +318,7 @@ export default function Home() {
                         data-ai-hint={`${suggestion.styleName} outfit`}
                       />
                     ) : (
-                       <div className="flex flex-col items-center justify-center h-full text-center p-8 bg-black/30">
+                       <div className="flex flex-col items-center justify-center h-full text-center p-8 bg-black/10">
                           <Camera className="w-12 h-12 text-destructive mb-4"/>
                           <p className="text-white bg-destructive px-3 py-1 rounded-md font-semibold">Image Generation Failed</p>
                           <p className="mt-3 text-muted-foreground text-sm">The AI couldn't create an image for this style, but you can still shop the look.</p>
@@ -297,7 +326,7 @@ export default function Home() {
                     )}
                   </div>
                   <div className="p-8 flex flex-col">
-                    <h3 className="text-4xl font-bold tracking-tight mb-3" style={{fontFamily: "'Playfair Display', serif"}}>{suggestion.styleName}</h3>
+                    <h3 className="text-4xl font-bold tracking-tight mb-3 font-playfair">{suggestion.styleName}</h3>
                     <p className="text-muted-foreground text-lg mb-8">{suggestion.description}</p>
                     
                     <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
