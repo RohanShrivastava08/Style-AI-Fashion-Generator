@@ -16,8 +16,8 @@ export default function Header({ onGetStartedClick }: HeaderProps) {
           <Feather className="h-8 w-8 text-primary" />
           <p className="text-2xl font-bold tracking-tight font-playfair">StyleAI</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={onGetStartedClick} className="rounded-full shadow-lg">
+        <div className="flex items-center gap-4">
+          <Button onClick={onGetStartedClick} className="rounded-full shadow-lg hidden sm:flex">
             <Sparkles className="mr-2 h-5 w-5" />
             Try Now
           </Button>

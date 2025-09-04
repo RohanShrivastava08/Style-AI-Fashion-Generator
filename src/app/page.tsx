@@ -136,19 +136,27 @@ export default function Home() {
   };
   
   const renderUploader = () => (
-     <div ref={uploaderRef} className="w-full max-w-2xl mx-auto text-center py-20">
-      <h2 className="font-playfair text-4xl font-bold tracking-tight mb-4">Upload Your Item</h2>
-      <p className="text-muted-foreground mb-8 text-lg">
+     <div ref={uploaderRef} className="w-full max-w-3xl mx-auto text-center py-24">
+      <h2 className="font-playfair text-4xl lg:text-5xl font-bold tracking-tight mb-4">Upload Your Item</h2>
+      <p className="text-muted-foreground mb-10 text-lg">
         Share a photo of a clothing item to get instant style advice.
       </p>
-       <div className="border-2 border-dashed border-border rounded-xl p-12 cursor-pointer transition-all hover:border-primary/50 hover:bg-primary/5"
-            onClick={() => fileInputRef.current?.click()}
+       <div className="border-2 border-dashed border-border rounded-xl p-12 transition-all hover:border-primary hover:bg-primary/5
+            group"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
        >
-         <UploadCloud className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-         <p className="font-semibold text-lg text-foreground">Drag & drop or click to upload</p>
-         <p className="text-sm text-muted-foreground mt-2">PNG, JPG, or WEBP. Max 5MB.</p>
+        <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                 <UploadCloud className="w-10 h-10 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <div>
+                 <p className="font-semibold text-lg text-foreground">
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="text-primary hover:underline">Click to upload</button> or drag & drop
+                 </p>
+                 <p className="text-sm text-muted-foreground mt-1">PNG, JPG, or WEBP. Max 5MB.</p>
+            </div>
+        </div>
          <input
            type="file"
            ref={fileInputRef}
@@ -162,11 +170,11 @@ export default function Home() {
 
   const renderInitialState = () => (
     <>
-      <div className="text-center pt-24 pb-16">
-        <h1 className="font-playfair text-6xl md:text-8xl font-bold tracking-tighter mb-6">
+      <div className="text-center pt-28 pb-20">
+        <h1 className="font-playfair text-5xl md:text-7xl font-bold tracking-tighter mb-6">
           Your Personal AI Stylist
         </h1>
-        <p className="max-w-xl mx-auto text-lg md:text-xl text-muted-foreground mb-10">
+        <p className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground mb-10">
           Unlock the potential of your wardrobe. Get curated outfit recommendations, AI-generated looks, and direct shopping links.
         </p>
         <Button onClick={scrollToUploader} size="lg" className="text-lg py-7 px-10 rounded-full shadow-lg hover:shadow-xl transition-shadow">
@@ -175,16 +183,16 @@ export default function Home() {
         </Button>
       </div>
 
-      <div className="py-20">
-        <h2 className="text-center font-playfair text-4xl font-bold mb-12">Style Inspiration</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+      <div className="py-24">
+        <h2 className="text-center font-playfair text-4xl lg:text-5xl font-bold mb-16">Style Inspiration</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {inspirationImages.map((image, index) => (
-            <div key={index} className="group relative aspect-[2/3] overflow-hidden rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <div key={index} className="group relative aspect-[3/4] overflow-hidden rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300">
               <Image 
                 src={image.src} 
                 alt={`Inspiration ${index + 1}`} 
                 fill
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 data-ai-hint={image.hint}
               />
@@ -199,15 +207,14 @@ export default function Home() {
 
   const renderPreviewAndSuggestions = () => (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 py-16">
-        {/* Left column for uploaded item */}
-        <div className="lg:col-span-1 flex flex-col items-center space-y-6">
-            <Card className="w-full max-w-sm shadow-2xl overflow-hidden bg-card/50">
+        <div className="lg:col-span-1 flex flex-col items-center space-y-8">
+            <Card className="w-full max-w-sm shadow-2xl overflow-hidden bg-card/80 backdrop-blur-sm">
                 <CardHeader>
                     <CardTitle className="text-center text-2xl font-playfair">Your Item</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {previewUrl && (
-                        <div className="aspect-square relative rounded-lg overflow-hidden ring-1 ring-border shadow-lg">
+                        <div className="aspect-square relative rounded-lg overflow-hidden ring-1 ring-border/50 shadow-lg">
                             <Image
                                 src={previewUrl}
                                 alt="Uploaded item"
@@ -220,51 +227,52 @@ export default function Home() {
                 </CardContent>
             </Card>
 
-            <Card className="w-full max-w-sm shadow-xl bg-card/50">
-              <CardHeader>
-                <CardTitle className="font-playfair text-xl">Style For</CardTitle>
-                <CardDescription>Select the gender for outfit suggestions.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RadioGroup defaultValue="woman" onValueChange={(value: Gender) => setGender(value)} className="grid grid-cols-2 gap-4">
-                  <div>
-                    <RadioGroupItem value="woman" id="woman" className="peer sr-only" />
-                    <Label htmlFor="woman" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                      Woman
-                    </Label>
-                  </div>
-                  <div>
-                    <RadioGroupItem value="man" id="man" className="peer sr-only" />
-                    <Label htmlFor="man" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                      Man
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </CardContent>
-            </Card>
+            <div className="w-full max-w-sm sticky top-28 space-y-8">
+                <Card className="w-full shadow-xl bg-card/80 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="font-playfair text-xl">Style For</CardTitle>
+                    <CardDescription>Select the model for outfit suggestions.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <RadioGroup defaultValue="woman" onValueChange={(value: Gender) => setGender(value)} className="grid grid-cols-2 gap-4">
+                      <div>
+                        <RadioGroupItem value="woman" id="woman" className="peer sr-only" />
+                        <Label htmlFor="woman" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer transition-colors">
+                          Woman
+                        </Label>
+                      </div>
+                      <div>
+                        <RadioGroupItem value="man" id="man" className="peer sr-only" />
+                        <Label htmlFor="man" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer transition-colors">
+                          Man
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </CardContent>
+                </Card>
 
-            <div className="w-full max-w-sm flex flex-col gap-4">
-                 <Button onClick={handleGenerate} size="lg" className="shadow-lg w-full" disabled={loading}>
-                    {loading ? (
-                        <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Generating...
-                        </>
-                    ) : (
-                        <>
-                            <Sparkles className="mr-2 h-5 w-5" />
-                            {suggestions ? "Regenerate Styles" : "Generate Styles"}
-                        </>
-                    )}
-                </Button>
-                <Button onClick={handleReset} variant="outline" size="lg" className="w-full">
-                    <RotateCcw className="mr-2 h-5 w-5" />
-                    Start Over
-                </Button>
+                <div className="w-full flex flex-col gap-4">
+                     <Button onClick={handleGenerate} size="lg" className="shadow-lg w-full rounded-full py-6 text-lg" disabled={loading}>
+                        {loading ? (
+                            <>
+                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                Generating...
+                            </>
+                        ) : (
+                            <>
+                                <Sparkles className="mr-2 h-5 w-5" />
+                                {suggestions ? "Regenerate Styles" : "Generate Styles"}
+                            </>
+                        )}
+                    </Button>
+                    <Button onClick={handleReset} variant="outline" size="lg" className="w-full rounded-full py-6 text-lg">
+                        <RotateCcw className="mr-2 h-5 w-5" />
+                        Start Over
+                    </Button>
+                </div>
             </div>
         </div>
 
-        {/* Right column for suggestions */}
         <div className="lg:col-span-2">
             {loading ? renderLoadingState() : suggestions ? renderSuggestionsState() : renderSuggestionsPlaceholder()}
         </div>
@@ -272,33 +280,33 @@ export default function Home() {
   );
   
   const renderSuggestionsPlaceholder = () => (
-    <div className="flex flex-col items-center justify-center h-full text-center bg-secondary/30 rounded-lg p-12 border-2 border-dashed">
+    <div className="flex flex-col items-center justify-center h-full text-center bg-secondary/30 rounded-lg p-12 border-2 border-dashed border-border/50 min-h-[500px] lg:sticky lg:top-28">
       <Feather className="w-16 h-16 text-muted-foreground mb-6"/>
       <h2 className="text-3xl font-bold font-playfair">Awaiting Your Masterpiece</h2>
-      <p className="text-muted-foreground text-lg mt-2">Click "Generate Styles" and let our AI craft the perfect looks for you.</p>
+      <p className="text-muted-foreground text-lg mt-2 max-w-sm">Click "Generate Styles" and let our AI craft the perfect looks for you.</p>
     </div>
   );
 
   const renderLoadingState = () => (
-    <div className="w-full flex flex-col items-center justify-center text-center p-12 rounded-lg bg-secondary/30">
+    <div className="w-full flex flex-col items-center justify-center text-center p-12 rounded-lg bg-secondary/30 min-h-[500px] lg:sticky lg:top-28">
       <Loader2 className="w-16 h-16 animate-spin text-primary mb-6" />
       <h2 className="text-3xl font-bold mb-3 font-playfair">Curating your styles...</h2>
-      <p className="text-muted-foreground text-lg">Our AI stylist is analyzing your item and creating unique outfits. This may take a moment.</p>
+      <p className="text-muted-foreground text-lg max-w-sm">Our AI stylist is analyzing your item and creating unique outfits. This may take a moment.</p>
     </div>
   );
 
   const renderSuggestionsState = () => (
     <div className="w-full">
       <div className="text-left mb-10">
-        <h1 className="text-5xl font-bold tracking-tighter font-playfair">Your AI-Styled Outfits</h1>
+        <h1 className="text-5xl lg:text-6xl font-bold tracking-tighter font-playfair">Your AI-Styled Outfits</h1>
         <p className="text-muted-foreground mt-3 text-xl max-w-2xl">Here are three unique looks, styled by AI and ready for you to explore.</p>
       </div>
 
       {suggestions && (
         <Tabs defaultValue={suggestions.outfitSuggestions[0]?.styleName} className="w-full">
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto sm:h-12 bg-secondary/50">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto sm:h-12 bg-secondary/50 rounded-lg">
             {suggestions.outfitSuggestions.map((suggestion) => (
-              <TabsTrigger key={suggestion.styleName} value={suggestion.styleName} className="text-base h-full py-2 sm:py-0 whitespace-normal sm:whitespace-nowrap">
+              <TabsTrigger key={suggestion.styleName} value={suggestion.styleName} className="text-base h-full py-2.5 sm:py-0 whitespace-normal sm:whitespace-nowrap rounded-md">
                 {suggestion.styleName}
               </TabsTrigger>
             ))}
@@ -308,13 +316,14 @@ export default function Home() {
             <TabsContent key={suggestion.styleName} value={suggestion.styleName} className="mt-8">
               <Card className="overflow-hidden shadow-2xl border-2 bg-secondary/30">
                 <div className="grid grid-cols-1 md:grid-cols-2">
-                  <div className="aspect-w-1 aspect-h-1 relative bg-muted/30">
+                  <div className="relative aspect-[3/4] bg-muted/30">
                     {suggestion.imageStatus === 'complete' && suggestion.aiStyledImage ? (
                       <Image
                         src={suggestion.aiStyledImage}
                         alt={`${suggestion.styleName} outfit`}
                         fill
                         className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
                         data-ai-hint={`${suggestion.styleName} outfit`}
                       />
                     ) : (
@@ -354,10 +363,10 @@ export default function Home() {
                             {suggestion.recommendedItems.map((item, index) => (
                                 <li key={index} className="flex justify-between items-center gap-4 p-3 rounded-lg bg-background/50">
                                 <div className="flex flex-col">
-                                    <Badge variant="secondary" className="mr-2 mb-1 w-fit">{item.type}</Badge>
+                                    <Badge variant="secondary" className="mr-2 mb-1.5 w-fit">{item.type}</Badge>
                                     <span className="font-medium text-base">{item.name}</span>
                                 </div>
-                                <Button asChild variant="outline" size="sm">
+                                <Button asChild variant="outline" size="sm" className="rounded-full">
                                     <a href={item.shoppingLink} target="_blank" rel="noopener noreferrer">
                                     Shop Now
                                     </a>
