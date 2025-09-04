@@ -14,7 +14,7 @@ export default function Header({ onGetStartedClick }: HeaderProps) {
       <div className="container flex h-20 items-center justify-between">
         <div className="flex items-center gap-3">
           <Feather className="h-8 w-8 text-primary" />
-          <p className="text-2xl font-bold tracking-tight">StyleAI</p>
+          <p className="text-2xl font-bold tracking-tight font-playfair">StyleAI</p>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={onGetStartedClick} className="rounded-full shadow-lg">

@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">
             <Feather className="h-8 w-8 mr-3 text-primary" />
-            <p className="text-2xl font-bold">StyleAI</p>
+            <p className="text-2xl font-bold font-playfair">StyleAI</p>
           </div>
           <p className="text-muted-foreground text-center md:text-right">
             © {new Date().getFullYear()} StyleAI. All rights reserved. <br/>
