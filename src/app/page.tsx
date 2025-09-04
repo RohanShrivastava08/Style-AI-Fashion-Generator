@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
   UploadCloud,
@@ -11,6 +11,9 @@ import {
   RotateCcw,
   Camera,
   Feather,
+  Palette,
+  Bot,
+  PictureInPicture
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -29,6 +32,12 @@ import { getOutfitSuggestions } from "./actions";
 import type { SuggestOutfitStylesOutput, OutfitStyleSuggestion } from "@/ai/schemas";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel"
+import Autoplay from "embla-carousel-autoplay"
 
 type SuggestionWithStatus = OutfitStyleSuggestion & {
   imageStatus: 'generating' | 'complete' | 'error';
@@ -45,7 +54,32 @@ const inspirationImages = [
   { src: "https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2xvdGhlc3xlbnwwfHwwfHx8MA%3D%3D", hint: "denim jacket" },
   { src: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2xvdGhlc3xlbnwwfHwwfHx8MA%3D%3D", hint: "clothes rack" },
   { src: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGNsb3RoZXN8ZW58MHx8MHx8fDA%3D", hint: "flat lay" },
+  { src: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjZ8fGZhc2hpb258ZW58MHx8MHx8fDA%3D", hint: "fashion model" },
+  { src: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8ZmFzaGlvbnxlbnwwfHwwfHx8MA%3D%3D", hint: "street style" },
 ];
+
+const howItWorksSteps = [
+    {
+        icon: Camera,
+        title: "1. Upload Your Item",
+        description: "Snap a photo or upload an image of any clothing item you want to style. The clearer the image, the better the results."
+    },
+    {
+        icon: Palette,
+        title: "2. Get Style Suggestions",
+        description: "Our AI analyzes your item's color, type, and style to generate three unique, complete outfits: Casual, Formal, and Trendy."
+    },
+    {
+        icon: PictureInPicture,
+        title: "3. Visualize the Look",
+        description: "See your item come to life! We generate an AI-styled image for each outfit, showing you how the pieces look together."
+    },
+    {
+        icon: ShoppingBag,
+        title: "4. Shop with a Click",
+        description: "Love what you see? Each recommended item comes with a direct shopping link, so you can easily recreate the look."
+    }
+]
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
@@ -57,6 +91,10 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploaderRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 2000, stopOnInteraction: false, stopOnMouseEnter: true })
+  );
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -185,23 +223,55 @@ export default function Home() {
 
       <div className="py-24">
         <h2 className="text-center font-playfair text-4xl lg:text-5xl font-bold mb-16">Style Inspiration</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {inspirationImages.map((image, index) => (
-            <div key={index} className="group relative aspect-[3/4] overflow-hidden rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300">
-              <Image 
-                src={image.src} 
-                alt={`Inspiration ${index + 1}`} 
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                data-ai-hint={image.hint}
-              />
-               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            </div>
-          ))}
+        <Carousel
+            opts={{
+                align: "start",
+                loop: true,
+            }}
+            plugins={[autoplayPlugin.current]}
+            className="w-full"
+            >
+            <CarouselContent>
+                {inspirationImages.map((image, index) => (
+                    <CarouselItem key={index} className="basis-1/1 sm:basis-1/2 lg:basis-1/4">
+                        <div className="p-1">
+                            <div className="group relative aspect-[3/4] overflow-hidden rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-300">
+                                <Image 
+                                    src={image.src} 
+                                    alt={`Inspiration ${index + 1}`} 
+                                    fill
+                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                    data-ai-hint={image.hint}
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            </div>
+                        </div>
+                    </CarouselItem>
+                ))}
+            </CarouselContent>
+        </Carousel>
+      </div>
+
+      {renderUploader()}
+
+      <div className="py-24">
+        <div className="text-center max-w-3xl mx-auto">
+            <h2 className="text-center font-playfair text-4xl lg:text-5xl font-bold mb-6">How It Works</h2>
+            <p className="text-muted-foreground mb-16 text-lg">Transform your wardrobe in four simple steps.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+            {howItWorksSteps.map((step, index) => (
+                <div key={index} className="text-center flex flex-col items-center">
+                    <div className="w-20 h-20 rounded-full bg-secondary mb-6 flex items-center justify-center">
+                        <step.icon className="w-10 h-10 text-primary"/>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
+                    <p className="text-muted-foreground">{step.description}</p>
+                </div>
+            ))}
         </div>
       </div>
-      {renderUploader()}
     </>
   );
 
@@ -400,3 +470,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
