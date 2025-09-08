@@ -179,7 +179,7 @@ export default function Home() {
       <p className="text-muted-foreground mb-10 text-lg">
         Share a photo of a clothing item to get instant style advice.
       </p>
-       <div className="border-2 border-dashed border-border rounded-xl p-12 transition-all hover:border-primary hover:bg-primary/5
+       <div className="border-2 border-dashed border-border rounded-xl p-12 transition-all hover:border-primary/80 hover:bg-secondary/50
             group"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -190,7 +190,7 @@ export default function Home() {
             </div>
             <div>
                  <p className="font-semibold text-lg text-foreground">
-                    <button type="button" onClick={() => fileInputRef.current?.click()} className="text-primary hover:underline">Click to upload</button> or drag & drop
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded-sm">Click to upload</button> or drag & drop
                  </p>
                  <p className="text-sm text-muted-foreground mt-1">PNG, JPG, or WEBP. Max 5MB.</p>
             </div>
@@ -263,7 +263,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             {howItWorksSteps.map((step, index) => (
                 <div key={index} className="text-center flex flex-col items-center">
-                    <div className="w-20 h-20 rounded-full bg-secondary mb-6 flex items-center justify-center">
+                    <div className="w-20 h-20 rounded-full bg-secondary mb-6 flex items-center justify-center border">
                         <step.icon className="w-10 h-10 text-primary"/>
                     </div>
                     <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
@@ -304,7 +304,7 @@ export default function Home() {
                     <CardDescription>Select the model for outfit suggestions.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <RadioGroup defaultValue="woman" onValueChange={(value: Gender) => setGender(value)} className="grid grid-cols-2 gap-4">
+                    <RadioGroup defaultValue="woman" value={gender} onValueChange={(value: Gender) => setGender(value)} className="grid grid-cols-2 gap-4">
                       <div>
                         <RadioGroupItem value="woman" id="woman" className="peer sr-only" />
                         <Label htmlFor="woman" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer transition-colors">
@@ -374,9 +374,9 @@ export default function Home() {
 
       {suggestions && (
         <Tabs defaultValue={suggestions.outfitSuggestions[0]?.styleName} className="w-full">
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto sm:h-12 bg-secondary/50 rounded-lg">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto sm:h-12 bg-secondary/50 rounded-lg border">
             {suggestions.outfitSuggestions.map((suggestion) => (
-              <TabsTrigger key={suggestion.styleName} value={suggestion.styleName} className="text-base h-full py-2.5 sm:py-0 whitespace-normal sm:whitespace-nowrap rounded-md">
+              <TabsTrigger key={suggestion.styleName} value={suggestion.styleName} className="text-base h-full py-2.5 sm:py-0 whitespace-normal sm:whitespace-nowrap rounded-md data-[state=active]:bg-background data-[state=active]:text-foreground">
                 {suggestion.styleName}
               </TabsTrigger>
             ))}
@@ -384,7 +384,7 @@ export default function Home() {
 
           {suggestions.outfitSuggestions.map((suggestion) => (
             <TabsContent key={suggestion.styleName} value={suggestion.styleName} className="mt-8">
-              <Card className="overflow-hidden shadow-2xl border-2 bg-secondary/30">
+              <Card className="overflow-hidden shadow-2xl border-2 bg-card/50">
                 <div className="grid grid-cols-1 md:grid-cols-2">
                   <div className="relative aspect-[3/4] bg-muted/30">
                     {suggestion.imageStatus === 'complete' && suggestion.aiStyledImage ? (
