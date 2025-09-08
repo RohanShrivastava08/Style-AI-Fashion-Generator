@@ -36,7 +36,7 @@ const suggestOutfitStylesPrompt = ai.definePrompt({
 
   For each of the three outfit styles, you must:
   1.  **Recommend Complementary Items**: Suggest specific items (tops, bottoms, footwear, accessories) that pair flawlessly with the user's item for a {{{gender}}}.
-  2.  **Provide Real Shopping Links**: For each recommended item, provide a valid, clickable shopping link from a major online fashion retailer (e.g., Amazon Fashion, Myntra, Zara, H&M, ASOS).
+  2.  **Provide Real Shopping Links**: For each recommended item, you must provide a valid, clickable shopping link from a major online fashion retailer (e.g., Amazon Fashion, Myntra, Zara, H&M, ASOS) that is **specifically for the {{{gender}}}'s version of that item.**
   3.  **Explain the Style**: Write a brief, sharp explanation of why the complete outfit works. Focus on color harmony, texture contrast, occasion appropriateness, and why it's a stylish look for a {{{gender}}}.
   4.  **Create an Appealing Style Name**: The name should be short, descriptive, and classy (e.g., "Downtown Chic," "Weekend Getaway," "Polished Professional").
 
