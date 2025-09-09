@@ -1,5 +1,9 @@
 # 🌟 🔍 👗🤖 Style AI – Fashion: AI-Powered Outfit Generator
 
+<img width="1470" height="956" alt="Image" src="https://github.com/user-attachments/assets/a90b0397-5a3d-4ffc-bedf-8bdab09e2e89" />
+<img width="1470" height="956" alt="Image" src="https://github.com/user-attachments/assets/ff6472d8-944c-419d-b838-43be0425c1c8" />
+<img width="1470" height="956" alt="Image" src="https://github.com/user-attachments/assets/83aa1995-3638-4d39-ac37-9b57c0f9e13d" />
+<img width="1470" height="956" alt="Image" src="https://github.com/user-attachments/assets/1d3119a2-33c0-4c1a-acdd-c41e3250fd71" />
 
 
 - Style AI is a full-stack generative AI web app that transforms personal fashion.
